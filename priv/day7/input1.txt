@@ -1,0 +1,15 @@
+Azdra,Azwyris,Xilwyris,Orymirath,Orywyris,Xilmirath,Azmirath,Xildra,Orydra
+
+r > a,i,b
+i > r,b,s
+d > r
+w > y
+z > m,b
+X > i
+t > h
+A > z
+O > r
+y > r,m,d,w
+l > m,d,w
+m > i
+a > t

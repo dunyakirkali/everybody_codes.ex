@@ -1,0 +1,27 @@
+Thazrax,Pyrrax,Thazbel,Krythkyris,Kyndrith,Araklyr,Azmarrax,Kyndax,Thazdrith,Kyngryph,Krythbel,Krythdax,Thazdax,Kynrax,Krythnylor,Kyndrith,Kynbel,Arakdrith,Krythgryph,Pyrdrith,Kynlyr,Krythrax,Arakrax,Arakgryph,Kynindor,Pyrgryph,Arakindor,Pyrnylor,Pyrindor,Krythdrith,Kynnylor,Krythlyr,Pyrbel,Pyrkyris,Kynkyris,Aeorkyris,Pyrlyr,Thaznylor,Krythdrith,Thazgryph,Xendindor,Aeorindor,Arakbel,Xenddrith,Arakdax,Thazindor,Thazdrith,Voraxdax,Arakdrith,Voraxkyris,Arakkyris,Voraxrax,Thazkyris,Araknylor,Voraxnylor,Aeordrith,Pyrdax,Pyrdrith,Xendbel,Azmarbel,Igndrith,Aeorgryph,Azmardrith,Igndrith,Aeordrith,Xenddrith,Ignindor,Xendrax,Voraxgryph,Azmardax,Xenddax,Azmarlyr,Ignnylor,Xendkyris,Aeorlyr,Aeordax,Xendgryph,Azmarnylor,Azmargryph,Azmarindor,Ignlyr,Aeornylor,Azmarkyris,Aeorbel,Voraxdrith,Voraxlyr,Ignrax,Thazlyr,Igndax,Voraxdrith,Voraxindor,Azmardrith,Ignbel,Voraxbel,Igngryph,Xendnylor,Aeorrax,Xendlyr,Ignkyris,Krythindor
+
+k > y,k,g,l,d,b,i,n,r
+A > z,r,e
+I > g
+z > m,k,g,l,d,b,i,n,r,v
+V > o
+h > v,k,g,l,d,b,i,n,r
+p > h
+n > d,y,k,g,l,b,i,n,r
+a > r,x,z,k
+t > h
+b > e
+K > y,r
+g > r,v
+o > r,v
+T > h
+r > r,a,i,y,v,k,g,l,d,b,n
+y > r,p,l,v,t
+P > y
+i > s,t,n
+x > k,g,l,d,b,i,n,r
+m > a
+X > e
+l > y,o
+d > r,a,o,k,g,l,d,b,i,n
+e > l,v
