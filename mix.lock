@@ -1,4 +1,7 @@
 %{
   "combination": {:hex, :combination, "0.0.3", "746aedca63d833293ec6e835aa1f34974868829b1486b1e1cb0685f0b2ae1f41", [:mix], [], "hexpm", "72b099f463df42ef7dc6371d250c7070b57b6c5902853f69deb894f79eda18ca"},
+  "complex": {:hex, :complex, "0.4.3", "84db4aad241099a8785446ac6eacf498bf3a60634a0e45c7745d875714ddbf98", [:mix], [], "hexpm", "2ceda96ebddcc22697974f1a2666d4cc5dfdd34f8cd8c4f9dced037bcb41eeb5"},
+  "deque": {:hex, :deque, "1.2.0", "30404b86264be3eeb4e8331d88ef67d0fdc77e006b2fa7872be03923a47245b7", [:mix], [], "hexpm", "cbc965c2c04654fee7ed875bf5efb5c925e1c98b0351bf1cca10670a024fbd5a"},
+  "libgraph": {:git, "https://github.com/tcoopman/libgraph", "aac7d41c7d098cbafb8adbf5fc29bd19b6cbc0b3", [branch: "undirected"]},
   "memoize": {:hex, :memoize, "1.4.4", "af4827a63fc6950b563747fb1db767ff010093ef89db88bfd30e95cbb60d0a37", [:mix], [], "hexpm", "3b046b002563ec93fbb7eb842e473e7774f4cf535956dc836d783ddccb084b10"},
 }

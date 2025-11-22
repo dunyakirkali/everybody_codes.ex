@@ -22,7 +22,9 @@ defmodule EverybodyCodes.MixProject do
   defp deps do
     [
       {:combination, "~>  0.0.3"},
-      {:memoize, "~> 1.4"}
+      {:memoize, "~> 1.4"},
+      {:deque, "~> 1.0"},
+      {:complex, "~> 0.4.1"}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]
