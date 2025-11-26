@@ -24,7 +24,9 @@ defmodule EverybodyCodes.MixProject do
       {:combination, "~>  0.0.3"},
       {:memoize, "~> 1.4"},
       # {:deque, "~> 1.2"}, # This does not work with Day 15
-      {:complex, "~> 0.4.1"}
+      {:complex, "~> 0.4.1"},
+      # This is mostly broken. I just use it for priority queues.
+      {:libgraph, "~> 0.16.0"}
     ]
   end
 end
