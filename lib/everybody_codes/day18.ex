@@ -1,14 +1,21 @@
 defmodule EverybodyCodes.Day18 do
   use Memoize
+  import Bitwise
 
   @doc """
       iex> "priv/day18/example1.txt" |> EverybodyCodes.Day18.input() |> EverybodyCodes.Day18.part1()
       774
   """
-  def part1(l) do
-    last_plant = List.last(l)
+  def index_plants(l) do
+    Enum.into(l, %{}, fn {p, branches} ->
+      {p["plant"], {p, branches}}
+    end)
+  end
 
-    energy(l, last_plant)
+  def part1(l) do
+    plants_map = index_plants(l)
+    {last_p, _} = Enum.max_by(l, fn {p, _} -> p["plant"] end)
+    energy(plants_map, last_p["plant"], [])
   end
 
   @doc """
@@ -16,13 +23,13 @@ defmodule EverybodyCodes.Day18 do
       324
   """
   def part2({l, cases}) do
-    last_plant =
-      l
-      |> Enum.max_by(fn {p, _} -> p["plant"] end)
+    plants_map = index_plants(l)
+    {last_p, _} = Enum.max_by(l, fn {p, _} -> p["plant"] end)
+    lp = last_p["plant"]
 
     cases
-    |> Enum.map(fn case ->
-      energy(l, last_plant, case)
+    |> Enum.map(fn case_bits ->
+      energy(plants_map, lp, case_bits)
     end)
     |> Enum.sum()
   end
@@ -32,23 +39,24 @@ defmodule EverybodyCodes.Day18 do
       946
   """
   def part3({l, cases}) do
-    last_plant =
-      l
-      |> Enum.max_by(fn {p, _} -> p["plant"] end)
+    plants_map = index_plants(l)
+    {last_p, _} = Enum.max_by(l, fn {p, _} -> p["plant"] end)
+    lp = last_p["plant"]
 
     max =
       cases
       |> Enum.at(0)
-      |> length()
+      |> case_size()
       |> all_bits()
-      |> Enum.map(fn case ->
-        energy(l, last_plant, case)
+      |> Enum.map(fn case_bits ->
+        energy(plants_map, lp, case_bits)
       end)
       |> Enum.max()
+      |> IO.inspect(label: "Max energy")
 
     cases
-    |> Enum.map(fn case ->
-      case energy(l, last_plant, case) do
+    |> Enum.map(fn case_bits ->
+      case energy(plants_map, lp, case_bits) do
         0 -> nil
         v -> max - v
       end
@@ -58,59 +66,59 @@ defmodule EverybodyCodes.Day18 do
   end
 
   def all_bits(n) do
-    for combo <- 0..((:math.pow(2, n) |> round) - 1) do
-      Integer.digits(combo, 2)
-      |> pad_left(n)
+    max = (1 <<< n) - 1
+
+    for combo <- 0..max do
+      for i <- (n - 1)..0//-1, reduce: [] do
+        acc ->
+          bit = combo >>> i &&& 1
+          [bit | acc]
+      end
+      |> Enum.reverse()
     end
   end
 
-  defp pad_left(list, n) do
-    List.duplicate(0, n - length(list)) ++ list
-  end
-
   @doc """
-      iex> "priv/day18/example1.txt" |> EverybodyCodes.Day18.input() |> EverybodyCodes.Day18.energy({%{"plant" => 1, "thickness" => 1}, [%{"thickness" => 1}]})
+      iex> pm = "priv/day18/example1.txt" |> EverybodyCodes.Day18.input() |> EverybodyCodes.Day18.index_plants()
+      iex> EverybodyCodes.Day18.energy(pm, 1, [])
       1
 
-      iex> "priv/day18/example1.txt" |> EverybodyCodes.Day18.input() |> EverybodyCodes.Day18.energy({%{"plant" => 4, "thickness" => 17}, [%{"plant" => 1, "thickness" => 15}, %{"plant" => 2, "thickness" => 3}]})
+      iex> pm = "priv/day18/example1.txt" |> EverybodyCodes.Day18.input() |> EverybodyCodes.Day18.index_plants()
+      iex> EverybodyCodes.Day18.energy(pm, 4, [])
       18
 
-      iex> "priv/day18/example2.txt" |> EverybodyCodes.Day18.input2() |> elem(0) |> EverybodyCodes.Day18.energy({%{"plant" => 1, "thickness" => 1}, [%{"thickness" => 1}]}, [1, 0, 1])
+      iex> {old, _cases} = EverybodyCodes.Day18.input2("priv/day18/example2.txt")
+      iex> pm = EverybodyCodes.Day18.index_plants(old)
+      iex> EverybodyCodes.Day18.energy(pm, 1, [1, 0, 1])
       1
 
-      iex> "priv/day18/example2.txt" |> EverybodyCodes.Day18.input2() |> elem(0) |> EverybodyCodes.Day18.energy({%{"plant" => 4, "thickness" => 10},[%{"plant" => 1, "thickness" => -25},%{"plant" => 2, "thickness" => 17},%{"plant" => 3, "thickness" => 12}]}, [1, 0, 1])
+      iex> {old, _cases} = EverybodyCodes.Day18.input2("priv/day18/example2.txt")
+      iex> pm = EverybodyCodes.Day18.index_plants(old)
+      iex> EverybodyCodes.Day18.energy(pm, 4, [1, 0, 1])
       0
   """
-  defmemo energy(
-            plants,
-            {%{"plant" => plant, "thickness" => plant_thickness}, branches},
-            case \\ []
-          ) do
-    branches
-    |> Enum.map(fn nxt ->
-      case nxt do
-        %{"plant" => to_plant, "thickness" => branch_thickness} ->
-          to_plant =
-            Enum.find(plants, fn {p, _} -> p["plant"] == to_plant end)
+  defmemo energy(plants_map, plant_id, case_bits \\ []) do
+    {plant, branches} = Map.fetch!(plants_map, plant_id)
+    plant_thickness = plant["thickness"]
+    has_case = case_bits != []
 
-          energy(plants, to_plant, case) * branch_thickness
+    total =
+      Enum.reduce(branches, 0, fn nxt, acc ->
+        acc +
+          case nxt do
+            %{"plant" => to_plant, "thickness" => branch_thickness} ->
+              energy(plants_map, to_plant, case_bits) * branch_thickness
 
-        %{"thickness" => branch_thickness} ->
-          if length(case) == 0 do
-            branch_thickness * plant_thickness
-          else
-            Enum.at(case, plant - 1)
+            %{"thickness" => branch_thickness} ->
+              if has_case do
+                get_bit(case_bits, plant_id - 1)
+              else
+                branch_thickness * plant_thickness
+              end
           end
-      end
-    end)
-    |> Enum.sum()
-    |> then(fn energy ->
-      if energy >= plant_thickness do
-        energy
-      else
-        0
-      end
-    end)
+      end)
+
+    if total >= plant_thickness, do: total, else: 0
   end
 
   def input2(filename) do
@@ -128,6 +136,7 @@ defmodule EverybodyCodes.Day18 do
         line
         |> String.split(" ", trim: true)
         |> Enum.map(&String.to_integer/1)
+        |> List.to_tuple()
       end)
     }
   end
@@ -169,4 +178,10 @@ defmodule EverybodyCodes.Day18 do
       {plants, branches}
     end)
   end
+
+  defp get_bit(bits, idx) when is_tuple(bits), do: elem(bits, idx)
+  defp get_bit(bits, idx) when is_list(bits), do: Enum.at(bits, idx)
+
+  defp case_size(bits) when is_tuple(bits), do: tuple_size(bits)
+  defp case_size(bits) when is_list(bits), do: length(bits)
 end
