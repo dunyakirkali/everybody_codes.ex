@@ -12,9 +12,9 @@ defmodule Day18Test do
     assert EverybodyCodes.Day18.part2(input) == 11_409_534_101
   end
 
-  # @tag timeout: :infinity
-  # test "Part 3" do
-  #   input = EverybodyCodes.Day18.input("priv/day18/input3.txt")
-  #   assert EverybodyCodes.Day18.part3(input, 202_520_252_025_000) == 94_450_193_710_489
-  # end
+  @tag timeout: :infinity
+  test "Part 3" do
+    input = EverybodyCodes.Day18.input2("priv/day18/input3.txt")
+    assert EverybodyCodes.Day18.part3(input) == 94_450_193_710_489
+  end
 end

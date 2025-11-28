@@ -28,6 +28,47 @@ defmodule EverybodyCodes.Day18 do
   end
 
   @doc """
+      iex> "priv/day18/example3.txt" |> EverybodyCodes.Day18.input2() |> EverybodyCodes.Day18.part3()
+      946
+  """
+  def part3({l, cases}) do
+    last_plant =
+      l
+      |> Enum.max_by(fn {p, _} -> p["plant"] end)
+
+    max =
+      cases
+      |> Enum.at(0)
+      |> length()
+      |> all_bits()
+      |> Enum.map(fn case ->
+        energy(l, last_plant, case)
+      end)
+      |> Enum.max()
+
+    cases
+    |> Enum.map(fn case ->
+      case energy(l, last_plant, case) do
+        0 -> nil
+        v -> max - v
+      end
+    end)
+    |> Enum.filter(& &1)
+    |> Enum.sum()
+  end
+
+  def all_bits(n) do
+    for combo <- 0..((:math.pow(2, n) |> round) - 1) do
+      Integer.digits(combo, 2)
+      |> pad_left(n)
+    end
+  end
+
+  defp pad_left(list, n) do
+    List.duplicate(0, n - length(list)) ++ list
+  end
+
+  @doc """
       iex> "priv/day18/example1.txt" |> EverybodyCodes.Day18.input() |> EverybodyCodes.Day18.energy({%{"plant" => 1, "thickness" => 1}, [%{"thickness" => 1}]})
       1
 
