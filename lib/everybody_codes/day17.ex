@@ -61,6 +61,8 @@ defmodule EverybodyCodes.Day17 do
   def part3(map) do
     map = mirror(map)
 
+    render(map) |> IO.puts()
+
     {_w, h} = size(map)
 
     start =
@@ -74,33 +76,33 @@ defmodule EverybodyCodes.Day17 do
       |> elem(0)
 
     centers = map |> Enum.filter(fn {_pos, v} -> v == "@" end) |> Enum.map(fn {pos, _} -> pos end)
-    queue = PriorityQueue.new() |> PriorityQueue.push({start, 0, [], 0}, 0)
+    queue = PriorityQueue.new() |> PriorityQueue.push({start, [start], 0}, 0)
     visited = MapSet.new([])
 
-    {radius, path, cost} = walk(map, queue, visited, dest, centers, h + 1)
-    {radius, cost} |> IO.inspect()
+    {path, time} = walk(map, queue, visited, dest, centers, h + 1)
     IO.inspect(path |> Enum.map(fn {x, y} -> {y + 1, x + 1} end))
-    cost * radius
+    time * div(time, 30)
   end
 
   def walk(map, deque, visited, dest, centers, h) do
-    {{:value, {pos, radius, path, time}}, deque} =
+    {{:value, {pos, path, time}}, deque} =
       PriorityQueue.pop(deque)
 
+    path |> IO.inspect()
+
     if pos == dest do
-      {radius, path, time}
+      {path, time}
     else
-      if MapSet.member?(visited, {pos, time}) do
+      if MapSet.member?(visited, pos) do
         walk(map, deque, visited, dest, centers, h)
       else
-        visited = MapSet.put(visited, {pos, time})
-        rad = div(time, 30)
+        visited = MapSet.put(visited, pos)
         [c1, c2] = centers
 
         lava =
-          manhattan_inside(c1, rad)
+          manhattan_inside(c1, div(time, 30))
           |> MapSet.new()
-          |> MapSet.union(MapSet.new(manhattan_inside(c2, rad)))
+          |> MapSet.union(MapSet.new(manhattan_inside(c2, div(time, 30))))
 
         intersection =
           lava
@@ -128,11 +130,11 @@ defmodule EverybodyCodes.Day17 do
                 deque,
                 {
                   np,
-                  rad,
                   [np | path],
                   time + dur
                 },
                 time + dur
+                # abs(elem(dest, 0) - elem(np, 0)) + abs(elem(dest, 1) - elem(np, 1))
               )
             end)
 
@@ -150,69 +152,72 @@ defmodule EverybodyCodes.Day17 do
         {x + 1, y},
         {x - 1, y},
         {x, y + 1},
+        # {x, y - 1},
         {x + 1, height - y - 1},
         {x - 1, height - y - 1},
-        {x, height - y},
-        {x, height - y - 2}
+        {x, height - y}
+        # {x, height - y - 2}
       ]
     else
       [
         {x + 1, y},
         {x - 1, y},
-        {x, y + 1},
-        {x, y - 1}
+        {x, y + 1}
+        # {x, y - 1}
       ]
     end
   end
 
   def mirror(grid) do
-    # bounds
+    # y bounds
     ys = Enum.map(Map.keys(grid), fn {_, y} -> y end)
-    min_y = Enum.min(ys)
     max_y = Enum.max(ys)
 
-    # find pivot "@"
+    # pivot "@"
     {pivot_x, pivot_y} =
       grid
       |> Enum.find(fn {_pos, v} -> v == "@" end)
       |> elem(0)
 
-    # --- Step 1: Remove top-right quadrant in original only ---
+    # Step 1: clean top-right quadrant
     cleaned_original =
       grid
       |> Enum.map(fn
-        {{x, y}, _val} when y < pivot_y and x > pivot_x -> {{x, y}, "."}
+        {{x, y}, _} when y < pivot_y and x > pivot_x -> {{x, y}, "."}
         other -> other
       end)
       |> Map.new()
 
-    # --- Step 2: Mirror vertically excluding last row ---
-    rows_to_mirror =
-      min_y..(max_y - 1)
-      |> Enum.to_list()
-      |> Enum.reverse()
-
+    # Step 2: mirror rows *except* the last one (max_y)
     mirrored =
-      Enum.reduce(rows_to_mirror, %{}, fn y, acc ->
-        new_y = max_y + (max_y - y)
+      Enum.reduce(grid, %{}, fn {{x, y}, val}, acc ->
+        if y == max_y do
+          acc
+        else
+          # FIXED: this produces no empty row
+          new_y = max_y + (max_y - y)
 
-        # take the original row (not cleaned)
-        row_cells =
-          grid
-          |> Enum.filter(fn {{_x, row_y}, _val} -> row_y == y end)
-          |> Enum.map(fn {{x, _}, val} ->
-            # bottom-left removal in mirrored section
-            new_val =
-              cond do
-                x < pivot_x -> "."
-                val == "S" -> "E"
-                true -> val
-              end
+          new_val =
+            cond do
+              # rows at or above pivot: blank left half
+              y <= pivot_y and x < pivot_x ->
+                "."
 
-            {{x, new_y}, new_val}
-          end)
+              # rows at or above pivot: convert S -> E
+              y <= pivot_y and val == "S" ->
+                "E"
 
-        Map.merge(acc, Map.new(row_cells))
+              # rows at or above pivot: normal
+              y <= pivot_y ->
+                val
+
+              # rows below pivot: unchanged
+              true ->
+                val
+            end
+
+          Map.put(acc, {x, new_y}, new_val)
+        end
       end)
 
     Map.merge(cleaned_original, mirrored)
